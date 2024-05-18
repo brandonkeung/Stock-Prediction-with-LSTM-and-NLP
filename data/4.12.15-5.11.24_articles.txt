@@ -5471,8 +5471,7 @@
 2018-11-07T22:00:15Z,From Qualcomm Q4 Earnings Conference Call: Timeline To Resolve Litigation With Apple Has Not Changed
 2018-11-07T19:25:27Z,Samsung Unveils New Screen Technology For Foldable Phones: Infinity Flex
 2018-11-07T18:41:01Z,Charter Equity Research Issues Mid-Day Note On Skyworks: 'Unlikely to be any problems with Skyworks components in iPhone XR. Reiterate Buy'
-2018-11-07T18:08:44Z,BlueFin Offers Q4 Update On PC Space: Oct. OEM Shipments Surprisingly
-Strong, Signaling A Strong Outlook For Dec. Qtr.; However, Uncertainty Surrounding Tariffs Creates Lack Of Clarity On Demand For Suppliers
+2018-11-07T18:08:44Z,BlueFin Offers Q4 Update On PC Space: Oct. OEM Shipments Surprisingly Strong, Signaling A Strong Outlook For Dec. Qtr.; However, Uncertainty Surrounding Tariffs Creates Lack Of Clarity On Demand For Suppliers
 2018-11-07T18:04:14Z,Analyst: Skyworks Could Be The Culprit Behind Apple's iPhone Production Cuts
 2018-11-07T16:50:04Z,Skyworks Shares Tick Higher On Volume As Hearing Co. Spokesperson Issued Comment To Bloomberg Suggesting Quality With Power Amp Issues Creating iPhone Product Cuts 'Untrue'
 2018-11-07T16:03:01Z,Apple's Struggles In India, Explained
@@ -9481,8 +9480,7 @@ Strong, Signaling A Strong Outlook For Dec. Qtr.; However, Uncertainty Surroundi
 2021-09-10T17:54:52Z,Apple Says Has Not Decided Whether It Will Appeal Epic Games Ruling
 2021-09-10T17:47:42Z,Apple Says Does Not Believe Epic Games Ruling Requires It To Allow Developers To Implement Their Own In-App Purchase Systems, Says Not Yet Decided How It Will Implement Judge's Orders
 2021-09-10T17:39:10Z,10 Information Technology Stocks Showing Unusual Options Activity In Today's Session
-2021-09-10T17:31:58Z,Baird On Apple, Epic Ruling Says 'We estimate that
-a 50% cut in app store fees could add 115% and 25% to Zynga and Playtika EPS, respectively.'
+2021-09-10T17:31:58Z,Baird On Apple, Epic Ruling Says 'We estimate that a 50% cut in app store fees could add 115% and 25% to Zynga and Playtika EPS, respectively.'
 2021-09-10T17:25:16Z,Apple Says 'The Bad Guy Here Is Epic, Not Apple'
 2021-09-10T17:20:27Z,Spotify's Head Of Global Affairs, Chief Legal Officer Horacio Gutierrez Says Pleased With Judge's Finding That Apple Engaged In 'Anti-Competitive Conduct'
 2021-09-10T17:07:42Z,Epic Games Plans To Appeal Ruling In Apple Case
