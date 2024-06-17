@@ -1,1 +1,1 @@
-# CS-172B-Project
+# Stock Prediction with LSTM and NLP
