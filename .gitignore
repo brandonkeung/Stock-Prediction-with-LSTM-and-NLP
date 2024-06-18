@@ -1,5 +1,8 @@
 api_key.txt
 alphavantage_api_key.txt
+alpaca_key.txt
+alpaca_secret_key.txt
+keys/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
