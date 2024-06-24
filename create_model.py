@@ -125,7 +125,7 @@ def main(symbol):
     results = model.evaluate(X_test, y_test)
     print("test loss, test acc:", results)
 
-    model.save_weights(f'weights/{symbol}_model.weights.h5')
+    model.save_weights(f'weights/{symbol}_model2.weights.h5')
 
 
 if __name__ == "__main__":
