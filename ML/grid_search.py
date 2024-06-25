@@ -9,7 +9,6 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import random
-# from epftoolbox.evaluation import MASE
 
 def create_sequences(data, seq_length):
     sequences = []
@@ -59,7 +58,7 @@ def grid_search_build_model(window_size, feature_count, lstm_units, d, dense_uni
 
 
 def main(symbol):
-    df = pd.read_csv(f'data/{symbol}/{symbol}_2024-06-16.csv')
+    df = pd.read_csv(f'data/{symbol}/{symbol}_2024-06-24.csv')
 
     training_set, testing_set = split_data(df, 0.8, ['open', 'high', 'low', 'close', 'volume'])
     print("training_set: ", training_set.shape)

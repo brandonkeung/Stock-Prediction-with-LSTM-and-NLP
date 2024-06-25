@@ -24,7 +24,7 @@ def load_data_to_csv(api_key_path, stock_symbol):
     df = get_data(api_key_path, stock_symbol)
     if df is not None and not df.empty:
         today = date.today()
-        csv_filename = f"data/{stock_symbol}_{today}.csv"
+        csv_filename = f"data/{stock_symbol}/{stock_symbol}_{today}.csv"
         df.to_csv(csv_filename, index=False)
         print(f"Data saved to {csv_filename}")
     else:
@@ -32,9 +32,9 @@ def load_data_to_csv(api_key_path, stock_symbol):
 
 if __name__ == '__main__':
     # test code:
-    load_data_to_csv('alphavantage_api_key.txt', 'AAPL')
-    load_data_to_csv('alphavantage_api_key.txt', 'MSFT')
-    load_data_to_csv('alphavantage_api_key.txt', 'GOOGL')
-    load_data_to_csv('alphavantage_api_key.txt', 'AMZN')
-    load_data_to_csv('alphavantage_api_key.txt', 'NVDA')
+    load_data_to_csv('keys/alphavantage_api_key.txt', 'AAPL')
+    load_data_to_csv('keys/alphavantage_api_key.txt', 'MSFT')
+    load_data_to_csv('keys/alphavantage_api_key.txt', 'GOOGL')
+    load_data_to_csv('keys/alphavantage_api_key.txt', 'AMZN')
+    load_data_to_csv('keys/alphavantage_api_key.txt', 'NVDA')
 

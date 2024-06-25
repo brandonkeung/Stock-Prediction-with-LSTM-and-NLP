@@ -47,7 +47,9 @@ def build_model(window_size, feature_count):
 
 
 def main(symbol):
-    df = pd.read_csv(f'data/{symbol}/{symbol}_2024-06-16.csv')
+    company_df = pd.read_csv(f'data/{symbol}/{symbol}_2024-06-24.csv')
+
+    market_df
 
     training_set, testing_set = split_data(df, 0.8, ['open', 'high', 'low', 'close', 'volume'])
     print("training_set: ", training_set.shape)
