@@ -75,7 +75,7 @@ def main(symbol):
     # window_size = 14        # Example window size
     feature_count = 5       # Number of features (e.g., open, high, low, close, volume)
     window_size = [15, 30, 60]
-    lstm_units = [32, 64, 128, 256]
+    lstm_units = [32, 64]           # lstm_units = [128, 256]       DO THIS LATER SO THAT WE SPLIT IT IN HALF JUST IN CASE SOMETHING HAPPENS
     lstm_dropout = [0.1, 0.2, 0.3]
     dense_units = [16, 32]
     batch_size = [16, 32, 64]
