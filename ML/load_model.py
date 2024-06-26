@@ -17,5 +17,5 @@ def build_model(window_size, feature_count):
     return model
 
 if __name__ == "__main__":
-    model = build_model(14, 5)
+    model = build_model(14, 30)
     model.load_weights('model_weights.h5')

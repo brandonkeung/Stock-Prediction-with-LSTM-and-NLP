@@ -58,9 +58,23 @@ def grid_search_build_model(window_size, feature_count, lstm_units, d, dense_uni
 
 
 def main(symbol):
-    df = pd.read_csv(f'data/{symbol}/{symbol}_2024-06-24.csv')
+    company_df = pd.read_csv(f'./data/{symbol}/{symbol}_2024-06-24.csv')
 
-    training_set, testing_set = split_data(df, 0.8, ['open', 'high', 'low', 'close', 'volume'])
+    market_df = pd.read_csv(f'./data/market_data/market_data_2024-06-24.csv')
+    market_df['Date'] = pd.to_datetime(market_df['Date'])
+    company_df['timestamp'] = pd.to_datetime(company_df['timestamp'])
+    df = pd.merge(market_df, company_df, left_on='Date', right_on='timestamp', how='inner')
+
+    training_set, testing_set = split_data(df, 0.8, [
+        'Value_interest', 'Value_inflation', 'Value_gdp',
+        'Value_unemployment', 'Value_cci', 'Open_sp500', 'High_sp500',
+        'Low_sp500', 'Close_sp500', 'Volume_sp500', 'Open_nasdaq',
+        'High_nasdaq', 'Low_nasdaq', 'Close_nasdaq', 'Volume_nasdaq',
+        'Open_dow_jones', 'High_dow_jones', 'Low_dow_jones', 'Close_dow_jones',
+        'Volume_dow_jones', 'Open_tech_sector', 'High_tech_sector',
+        'Low_tech_sector', 'Close_tech_sector', 'Volume_tech_sector',
+        'open', 'high', 'low', 'close', 'volume'
+        ])
     print("training_set: ", training_set.shape)
     print("testing_set: ", testing_set.shape)
 
@@ -68,11 +82,9 @@ def main(symbol):
     training_set = scaler.fit_transform(training_set)
     testing_set = scaler.fit_transform(testing_set)
 
-
-    
-
     # window_size = 14        # Example window size
-    feature_count = 5       # Number of features (e.g., open, high, low, close, volume)
+    feature_count = 30       # Number of features (e.g., open, high, low, close, volume)
+    label_index = 28
     window_size = [15, 30, 60]
     lstm_units = [32, 64]           # lstm_units = [128, 256]       DO THIS LATER SO THAT WE SPLIT IT IN HALF JUST IN CASE SOMETHING HAPPENS
     lstm_dropout = [0.1, 0.2, 0.3]
@@ -87,7 +99,7 @@ def main(symbol):
     # epochs = [25, 50]
 
     # Callbacks
-    early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+    early_stopping = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=5, min_lr=1e-5)
 
     dictionary_of_training = {'window' : [], 'lstm_unit': [], 'lstm_dropout': [], 'dense_units' : [], 'batch_size': [], 'epochs': [], 'training_error_rate': [], 'training_accuracy': [], 'testing_error_rate': [], 'testing_accuracy' : [], 'MASE' : [], 'history' : [], 'model' : []}
@@ -97,7 +109,7 @@ def main(symbol):
                 for dense_unit in dense_units:
                     for batch in batch_size:
                         for epoch in epochs: 
-                            X_train, y_train = get_x_y(training_set, window, 3, 5)      # Change this line if you added more features
+                            X_train, y_train = get_x_y(training_set, window, label_index, feature_count)      # Change this line if you added more features
                             val_split_row = int(X_train.shape[0]*0.8)               # 20% will be used for validation
                             X_train, X_val = X_train[:val_split_row], X_train[val_split_row:]
                             y_train, y_val = y_train[:val_split_row], y_train[val_split_row:]
@@ -114,7 +126,7 @@ def main(symbol):
                             dictionary_of_training['epochs'].append(epoch)
 
                             # Create and compile the model
-                            model = grid_search_build_model(window, 5, unit, dropout, dense_unit)
+                            model = grid_search_build_model(window, 30, unit, dropout, dense_unit)
 
                             # Train the model
                             history = model.fit(X_train, y_train, batch_size=batch, epochs=epoch,
@@ -130,17 +142,17 @@ def main(symbol):
                             dictionary_of_training['testing_error_rate'].append(test_loss)
                             dictionary_of_training['testing_accuracy'].append(test_accuracy)
 
-                            X_test, y_test = get_x_y(testing_set, window, 3, 5)
+                            X_test, y_test = get_x_y(testing_set, window, label_index, feature_count)
 
                             y_pred = model.predict(X_test)
     
                             full_test_set = np.zeros((len(y_test), feature_count))
-                            full_test_set[:, 3] = y_test
-                            y_test_inverse = scaler.inverse_transform(full_test_set)[:, 3]
+                            full_test_set[:, label_index] = y_test
+                            y_test_inverse = scaler.inverse_transform(full_test_set)[:, label_index]
 
                             full_pred_set = np.zeros((len(y_pred), feature_count))
-                            full_pred_set[:, 3] = y_pred[:, 0]  # Ensure y_pred is 2D
-                            y_pred_inverse = scaler.inverse_transform(full_pred_set)[:, 3]
+                            full_pred_set[:, label_index] = y_pred[:, 0]  # Ensure y_pred is 2D
+                            y_pred_inverse = scaler.inverse_transform(full_pred_set)[:, label_index]
 
                             mae = mean_absolute_error(y_test, y_pred)
 
@@ -155,9 +167,9 @@ def main(symbol):
                             dictionary_of_training['history'].append(history)
 
                             # Print progress
-                            print(f"Completed training for window={window}, unit={unit}, dropout={dropout}, dense_units={dense_unit}, batch_size={batch}, epochs={epoch}")
+                            print(f"Completed training for window={window}, unit={unit}, dropout={dropout}, dense_units={dense_unit}, batch_size={batch}, epochs={epoch}, training_error_rate={train_loss}, training_accuracy={train_accuracy}, testing_error_rate={test_loss}, testing_accuracy={test_accuracy}, MASE: {mase}\n")
 
-                            f = open("model_performances_grid_search.txt", "a")
+                            f = open("ML/model_performances_grid_search.txt", "a")
                             f.write(f"Completed training for window={window}, unit={unit}, dropout={dropout}, dense_units={dense_unit}, batch_size={batch}, epochs={epoch}, training_error_rate={train_loss}, training_accuracy={train_accuracy}, testing_error_rate={test_loss}, testing_accuracy={test_accuracy}, MASE: {mase}\n")
                             f.close()
 
@@ -165,7 +177,7 @@ def main(symbol):
     max_index = np.argmax(dictionary_of_training['testing_accuracy'])
 
     # Print the values corresponding to that index
-    f = open("model_performances_grid_search.txt", "a")
+    f = open("ML/model_performances_grid_search.txt", "a")
     f.write("Best parameters based on highest testing accuracy:\n")
     f.write(f"window_size: {dictionary_of_training['window'][max_index]}\n")
     f.write(f"lstm_unit: {dictionary_of_training['lstm_unit'][max_index]}\n")
@@ -182,7 +194,7 @@ def main(symbol):
     model = dictionary_of_training['model'][max_index]
     
     # Get X and y from testing set
-    X_test, y_test = get_x_y(testing_set, window, 3, 5)
+    X_test, y_test = get_x_y(testing_set, window, label_index, feature_count)
     print("X_test: ", X_test.shape)
     print("y_test: ", y_test.shape)
 
@@ -192,12 +204,12 @@ def main(symbol):
     y_pred = model.predict(X_test)
     
     full_test_set = np.zeros((len(y_test), feature_count))
-    full_test_set[:, 3] = y_test
-    y_test_inverse = scaler.inverse_transform(full_test_set)[:, 3]
+    full_test_set[:, label_index] = y_test
+    y_test_inverse = scaler.inverse_transform(full_test_set)[:, label_index]
 
     full_pred_set = np.zeros((len(y_pred), feature_count))
-    full_pred_set[:, 3] = y_pred[:, 0]  # Ensure y_pred is 2D
-    y_pred_inverse = scaler.inverse_transform(full_pred_set)[:, 3]
+    full_pred_set[:, label_index] = y_pred[:, 0]  # Ensure y_pred is 2D
+    y_pred_inverse = scaler.inverse_transform(full_pred_set)[:, label_index]
 
     print("Inverted (using stock prices)")
     # Calculate Mean Absolute Error (MAE)

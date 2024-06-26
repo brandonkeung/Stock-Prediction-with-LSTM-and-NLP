@@ -49,9 +49,24 @@ def build_model(window_size, feature_count):
 def main(symbol):
     company_df = pd.read_csv(f'data/{symbol}/{symbol}_2024-06-24.csv')
 
-    market_df
+    market_df = pd.read_csv(f'data/market_data/market_data_2024-06-24.csv')
+    market_df['Date'] = pd.to_datetime(market_df['Date'])
+    company_df['timestamp'] = pd.to_datetime(company_df['timestamp'])
+    df = pd.merge(market_df, company_df, left_on='Date', right_on='timestamp', how='inner')
 
-    training_set, testing_set = split_data(df, 0.8, ['open', 'high', 'low', 'close', 'volume'])
+    # df['Date'] = df['Date'].astype(str)
+    print(df)
+
+    training_set, testing_set = split_data(df, 0.8, [
+       'Value_interest', 'Value_inflation', 'Value_gdp',
+       'Value_unemployment', 'Value_cci', 'Open_sp500', 'High_sp500',
+       'Low_sp500', 'Close_sp500', 'Volume_sp500', 'Open_nasdaq',
+       'High_nasdaq', 'Low_nasdaq', 'Close_nasdaq', 'Volume_nasdaq',
+       'Open_dow_jones', 'High_dow_jones', 'Low_dow_jones', 'Close_dow_jones',
+       'Volume_dow_jones', 'Open_tech_sector', 'High_tech_sector',
+       'Low_tech_sector', 'Close_tech_sector', 'Volume_tech_sector',
+       'open', 'high', 'low', 'close', 'volume'
+       ])
     print("training_set: ", training_set.shape)
     print("testing_set: ", testing_set.shape)
 
@@ -60,7 +75,7 @@ def main(symbol):
     testing_set = scaler.fit_transform(testing_set)
 
 
-    X_train, y_train = get_x_y(training_set, 14, 3, 5)      # Change this line if you added more features
+    X_train, y_train = get_x_y(training_set, 14, 28, 30)      # Change this line if you added more features
     val_split_row = int(X_train.shape[0]*0.8)               # 20% will be used for validation
     X_train, X_val = X_train[:val_split_row], X_train[val_split_row:]
     y_train, y_val = y_train[:val_split_row], y_train[val_split_row:]
@@ -68,9 +83,11 @@ def main(symbol):
     print("y_train: ", y_train.shape)
     print("X_val: ", X_val.shape)
     print("y_val: ", y_val.shape)
+    print(training_set)
+    print(y_train)
 
     window_size = 14        # Example window size
-    feature_count = 5       # Number of features (e.g., open, high, low, close, volume)
+    feature_count = 30       # Number of features (e.g., open, high, low, close, volume)
     model = build_model(window_size, feature_count)
     model.summary()
 
@@ -80,9 +97,10 @@ def main(symbol):
     history = model.fit(X_train, y_train, validation_data = (X_val, y_val), epochs=200, batch_size=32, callbacks=[early_stopping, reduce_lr])
 
     # Get X and y from testing set
-    X_test, y_test = get_x_y(testing_set, 14, 3, 5)
+    X_test, y_test = get_x_y(testing_set, 14, 28, 30)
     print("X_test: ", X_test.shape)
     print("y_test: ", y_test.shape)
+    print(y_test)
 
     loss = model.evaluate(X_test, y_test)
     print(f'Test Loss: {loss}')
@@ -90,12 +108,12 @@ def main(symbol):
     y_pred = model.predict(X_test)
     
     full_test_set = np.zeros((len(y_test), feature_count))
-    full_test_set[:, 3] = y_test
-    y_test_inverse = scaler.inverse_transform(full_test_set)[:, 3]
+    full_test_set[:, 28] = y_test
+    y_test_inverse = scaler.inverse_transform(full_test_set)[:, 28]
 
     full_pred_set = np.zeros((len(y_pred), feature_count))
-    full_pred_set[:, 3] = y_pred[:, 0]  # Ensure y_pred is 2D
-    y_pred_inverse = scaler.inverse_transform(full_pred_set)[:, 3]
+    full_pred_set[:, 28] = y_pred[:, 0]  # Ensure y_pred is 2D
+    y_pred_inverse = scaler.inverse_transform(full_pred_set)[:, 28]
 
     print("Inverted (using stock prices)")
     # Calculate Mean Absolute Error (MAE)
