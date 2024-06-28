@@ -65,16 +65,23 @@ def main(symbol):
     company_df['timestamp'] = pd.to_datetime(company_df['timestamp'])
     df = pd.merge(market_df, company_df, left_on='Date', right_on='timestamp', how='inner')
 
+    # training_set, testing_set = split_data(df, 0.8, [
+    #     'Value_interest', 'Value_inflation', 'Value_gdp',
+    #     'Value_unemployment', 'Value_cci', 'Open_sp500', 'High_sp500',
+    #     'Low_sp500', 'Close_sp500', 'Volume_sp500', 'Open_nasdaq',
+    #     'High_nasdaq', 'Low_nasdaq', 'Close_nasdaq', 'Volume_nasdaq',
+    #     'Open_dow_jones', 'High_dow_jones', 'Low_dow_jones', 'Close_dow_jones',
+    #     'Volume_dow_jones', 'Open_tech_sector', 'High_tech_sector',
+    #     'Low_tech_sector', 'Close_tech_sector', 'Volume_tech_sector',
+    #     'open', 'high', 'low', 'close', 'volume'
+    #     ])
+
     training_set, testing_set = split_data(df, 0.8, [
-        'Value_interest', 'Value_inflation', 'Value_gdp',
-        'Value_unemployment', 'Value_cci', 'Open_sp500', 'High_sp500',
-        'Low_sp500', 'Close_sp500', 'Volume_sp500', 'Open_nasdaq',
-        'High_nasdaq', 'Low_nasdaq', 'Close_nasdaq', 'Volume_nasdaq',
-        'Open_dow_jones', 'High_dow_jones', 'Low_dow_jones', 'Close_dow_jones',
-        'Volume_dow_jones', 'Open_tech_sector', 'High_tech_sector',
-        'Low_tech_sector', 'Close_tech_sector', 'Volume_tech_sector',
-        'open', 'high', 'low', 'close', 'volume'
-        ])
+        'Close_sp500', 'Close_nasdaq', 
+        'Close_dow_jones','Close_tech_sector',
+        'open', 'high', 'low', 
+        'close', 'volume'])
+    
     print("training_set: ", training_set.shape)
     print("testing_set: ", testing_set.shape)
 
@@ -83,8 +90,8 @@ def main(symbol):
     testing_set = scaler.fit_transform(testing_set)
 
     # window_size = 14        # Example window size
-    feature_count = 30       # Number of features (e.g., open, high, low, close, volume)
-    label_index = 28
+    feature_count = 9       # Number of features (e.g., open, high, low, close, volume)
+    label_index = 7
     window_size = [15, 30, 60]
     lstm_units = [32, 64]           # lstm_units = [128, 256]       DO THIS LATER SO THAT WE SPLIT IT IN HALF JUST IN CASE SOMETHING HAPPENS
     lstm_dropout = [0.1, 0.2, 0.3]
@@ -126,7 +133,7 @@ def main(symbol):
                             dictionary_of_training['epochs'].append(epoch)
 
                             # Create and compile the model
-                            model = grid_search_build_model(window, 30, unit, dropout, dense_unit)
+                            model = grid_search_build_model(window, feature_count, unit, dropout, dense_unit)
 
                             # Train the model
                             history = model.fit(X_train, y_train, batch_size=batch, epochs=epoch,
@@ -159,7 +166,7 @@ def main(symbol):
                             y_test = np.array(y_test)  # Convert to numpy array if not already
                             y_pred = np.array(y_pred)  # Convert to numpy array if not already
 
-                            # Calculate MASE        PROBLEM WITH THIS I THINK
+                            # Calculate MASE
                             mase = MASE(y_test, y_pred)
                             dictionary_of_training['MASE'].append(mase)
 
@@ -174,11 +181,11 @@ def main(symbol):
                             f.close()
 
 
-    max_index = np.argmax(dictionary_of_training['testing_accuracy'])
+    max_index = np.argmin(dictionary_of_training['MASE'])
 
     # Print the values corresponding to that index
     f = open("ML/model_performances_grid_search.txt", "a")
-    f.write("Best parameters based on highest testing accuracy:\n")
+    f.write("Best parameters based on lowest MASE:\n")
     f.write(f"window_size: {dictionary_of_training['window'][max_index]}\n")
     f.write(f"lstm_unit: {dictionary_of_training['lstm_unit'][max_index]}\n")
     f.write(f"lstm_dropout: {dictionary_of_training['lstm_dropout'][max_index]}\n")
@@ -245,4 +252,10 @@ def main(symbol):
 
 
 if __name__ == "__main__":
-   main("AAPL")
+#    main("AAPL")
+   main("AMZN")
+#    main("GOOGL")
+#    main("MSFT")
+#    main("NVDA")
+
+   # MAKE SURE TO CHECK THE DATASETS NO NULL VALUES AND THE ENGOUH DATAPOINTS

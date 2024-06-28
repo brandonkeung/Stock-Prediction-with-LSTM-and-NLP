@@ -135,4 +135,4 @@ if __name__ == "__main__":
 
     print(df_merged.isnull().sum())
 
-    df_merged.to_csv("./data/market_data/market_data_2024-06-24.csv")
+    df_merged.to_csv(f"./data/market_data/market_data_{today}.csv")
