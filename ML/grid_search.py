@@ -253,9 +253,9 @@ def main(symbol):
 
 if __name__ == "__main__":
 #    main("AAPL")
-   main("AMZN")
+#    main("AMZN")
 #    main("GOOGL")
 #    main("MSFT")
-#    main("NVDA")
+    main("NVDA")
 
    # MAKE SURE TO CHECK THE DATASETS NO NULL VALUES AND THE ENGOUH DATAPOINTS
