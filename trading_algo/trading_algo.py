@@ -110,6 +110,11 @@ def predict_nvda():
 # 'open', 'high', 'low', 
 # 'close', 'volume'
 
+def load_api_key(filepath):
+    """Load and return the API key from a file."""
+    with open(filepath, 'r') as file:
+        api_key = file.read().strip()  # .strip() removes any leading/trailing whitespace
+    return api_key
 
 def get_data(api_key_path, stock_symbol, days):
     api_key = load_api_key(api_key_path)
@@ -165,12 +170,69 @@ def main():
 
     
 
-    get_data('keys/alphavantage_api_key.txt', 'AAPL', 60)
-    get_data('keys/alphavantage_api_key.txt', 'MSFT', 15)
-    get_data('keys/alphavantage_api_key.txt', 'GOOGL', 15)
-    get_data('keys/alphavantage_api_key.txt', 'AMZN', 15)
-    get_data('keys/alphavantage_api_key.txt', 'NVDA', 15)
+    AAPL_df = get_data('keys/alphavantage_api_key.txt', 'AAPL', 60)
+    MSFT_df = get_data('keys/alphavantage_api_key.txt', 'MSFT', 15)
+    GOOGL_df = get_data('keys/alphavantage_api_key.txt', 'GOOGL', 15)
+    AMZN_df = get_data('keys/alphavantage_api_key.txt', 'AMZN', 15)
+    NVDA_df = get_data('keys/alphavantage_api_key.txt', 'NVDA', 15)
 
+    api_key = load_api_key("./keys/fred_api.txt")
+    # You need an API key from FRED
+    fred = Fred(api_key=api_key)
+
+    # Download data for S&P 500
+    sp500 = yf.download('^GSPC', start='1999-01-01', end=today)
+    nasdaq = yf.download('^IXIC', start='1999-01-01', end=today)
+    dow_jones = yf.download('^DJI', start='1999-01-01', end=today)
+
+    # Download sector data
+    tech_sector = yf.download('XLK', start='1999-01-01', end=today)
+
+    sp500.reset_index(inplace=True)
+    nasdaq.reset_index(inplace=True)
+    dow_jones.reset_index(inplace=True)
+    tech_sector.reset_index(inplace=True)
+
+    sp500 = sp500[['Date', 'Close']]
+    sp500['Date'] = pd.to_datetime(sp500['Date'])
+    sp500 = sp500[sp500['Date'] >= '1999-01-01']
+    nasdaq = nasdaq[['Date', 'Open', 'Close']]
+    nasdaq['Date'] = pd.to_datetime(nasdaq['Date'])
+    nasdaq = nasdaq[nasdaq['Date'] >= '1999-01-01']
+    dow_jones = dow_jones[['Date', 'Open', 'Close']]
+    dow_jones['Date'] = pd.to_datetime(dow_jones['Date'])
+    dow_jones = dow_jones[dow_jones['Date'] >= '1999-01-01']
+    tech_sector = tech_sector[['Date', 'Open', 'Close']]
+    tech_sector['Date'] = pd.to_datetime(tech_sector['Date'])
+    tech_sector = tech_sector[tech_sector['Date'] >= '1999-01-01']
+
+    sp500 = sp500.set_axis(['Date', 'Close_sp500'], axis=1)
+    nasdaq = nasdaq.set_axis(['Date', 'Close_nasdaq',], axis=1)
+    dow_jones = dow_jones.set_axis(['Date', 'Close_dow_jones'], axis=1)
+    tech_sector = tech_sector.set_axis(['Date', 'Close_tech_sector'], axis=1)
+
+    all_dates = pd.concat([
+        sp500['Date'],
+        nasdaq['Date'],
+        dow_jones['Date'],
+        tech_sector['Date']
+    ]).drop_duplicates().sort_values().reset_index(drop=True)
+
+    # Create a DataFrame to start merging
+    market_df = pd.DataFrame({'Date': all_dates})
+
+    # Merge with market data
+    market_df = pd.merge(market_df, sp500, on='Date', how='left')
+    market_df = pd.merge(market_df, nasdaq, on='Date', how='left')
+    market_df = pd.merge(market_df, dow_jones, on='Date', how='left')
+    market_df = pd.merge(market_df, tech_sector, on='Date', how='left')
+
+    market_df = market_df[market_df['Date'] >= '1999-01-04']
+
+    market_df = market_df.dropna(how='any')
+
+    # 'Close_sp500', 'Close_nasdaq', 
+    # 'Close_dow_jones','Close_tech_sector',
 
 if __name__ == "__main__":
     main()
